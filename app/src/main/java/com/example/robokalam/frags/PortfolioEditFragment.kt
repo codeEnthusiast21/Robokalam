@@ -6,21 +6,22 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
-import com.example.robokalam.R
 import com.example.robokalam.data.AppDatabase
+import com.example.robokalam.data.Portfolio
 import com.example.robokalam.data.PortfolioDao
-import com.example.robokalam.data.PortfolioEntity
 import com.example.robokalam.databinding.FragmentPortfolioEditBinding
-import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class PortfolioEditFragment : Fragment() {
     private var _binding: FragmentPortfolioEditBinding? = null
     private val binding get() = _binding!!
-    private val portfolioDao: PortfolioDao by lazy {
-        AppDatabase.getInstance(requireContext()).portfolioDao()
-    }
+    private var isEditing = false
+    private lateinit var portfolioDao: PortfolioDao
+    private var currentPortfolio: Portfolio? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -28,53 +29,155 @@ class PortfolioEditFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentPortfolioEditBinding.inflate(inflater, container, false)
+        portfolioDao = AppDatabase.getInstance(requireContext()).portfolioDao()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadPortfolio()
-        setupSaveButton()
+        loadSavedData()
+        setupButtons()
+        toggleEditMode(false)
     }
 
-    private fun loadPortfolio() {
-        val userId = requireActivity().getSharedPreferences("login_pref", Context.MODE_PRIVATE)
-            .getString("user_email", "") ?: return
+    private fun loadSavedData() {
+        // Get name and email from login preferences
+        val loginPref = requireActivity().getSharedPreferences("login_pref", Context.MODE_PRIVATE)
+        val userEmail = loginPref.getString("user_email", "") ?: ""
 
+        // Launch coroutine to fetch portfolio data
         lifecycleScope.launch {
-            portfolioDao.getPortfolio(userId).collect { portfolio ->
-                portfolio?.let {
-                    binding.etEducation.setText(it.education)
-                    binding.etSkills.setText(it.skills)
-                    binding.etExperience.setText(it.experience)
+            // Get portfolio from Room DB
+            currentPortfolio = withContext(Dispatchers.IO) {
+                portfolioDao.getPortfolioByEmail(userEmail)
+            } ?: Portfolio(email = userEmail)
+
+            binding.apply {
+                // Set data from login preferences
+                etName.setText(loginPref.getString("user_name", ""))
+                etEmail.setText(userEmail)
+
+                // Set data from Room database
+                currentPortfolio?.let { portfolio ->
+                    etPhone.setText(portfolio.phone)
+                    etSkills.setText(portfolio.skills)
+                    etExperience.setText(portfolio.experience)
+                    etEducation.setText(portfolio.education)
+                    etInterests.setText(portfolio.interests)
                 }
             }
         }
     }
 
-    private fun setupSaveButton() {
-        binding.btnSave.setOnClickListener {
-            savePortfolio()
+    private fun setupButtons() {
+        binding.apply {
+            btnEdit.setOnClickListener {
+                isEditing = true
+                toggleEditMode(true)
+            }
+
+            btnSave.setOnClickListener {
+                if (validateInputs()) {
+                    isEditing = false
+                    saveData()
+                    toggleEditMode(false)
+                }
+            }
         }
     }
 
-    private fun savePortfolio() {
-        val userId = requireActivity().getSharedPreferences("login_pref", Context.MODE_PRIVATE)
-            .getString("user_email", "") ?: return
+    private fun validateInputs(): Boolean {
+        binding.apply {
+            val name = etName.text.toString().trim()
+            val phone = etPhone.text.toString().trim()
+            val skills = etSkills.text.toString().trim()
+            val experience = etExperience.text.toString().trim()
+            val education = etEducation.text.toString().trim()
 
-        val portfolio = PortfolioEntity(
-            userId = userId,
-            name = binding.etName.text.toString(),
-            email = binding.etEmail.text.toString(),
-            phone = binding.etPhone.text.toString(),
-            education = binding.etEducation.text.toString(),
-            skills = binding.etSkills.text.toString(),
-            experience = binding.etExperience.text.toString()
-        )
+            if (name.isEmpty()) {
+                etName.error = "Name required"
+                return false
+            }
 
-        lifecycleScope.launch {
-            portfolioDao.insertPortfolio(portfolio)
-            Snackbar.make(binding.root, "Portfolio saved", Snackbar.LENGTH_SHORT).show()
+            if (phone.isNotEmpty() && phone.length < 10) {
+                etPhone.error = "Enter valid phone number"
+                return false
+            }
+
+            if (skills.isEmpty()) {
+                etSkills.error = "Skills required"
+                return false
+            }
+
+            if (experience.isEmpty()) {
+                etExperience.error = "Experience required"
+                return false
+            }
+
+            if (education.isEmpty()) {
+                etEducation.error = "Education required"
+                return false
+            }
+
+            return true
         }
+    }
+
+    private fun toggleEditMode(editing: Boolean) {
+        binding.apply {
+            // Map of views to their edit state
+            val editableViews = mapOf(
+                etName to editing,
+                etEmail to false, // Always disabled
+                etPhone to editing,
+                etSkills to editing,
+                etExperience to editing,
+                etEducation to editing,
+                etInterests to editing
+            )
+
+            editableViews.forEach { (view, enabled) ->
+                view.isEnabled = enabled
+            }
+
+            btnSave.visibility = if (editing) View.VISIBLE else View.GONE
+            btnEdit.visibility = if (editing) View.GONE else View.VISIBLE
+        }
+    }
+
+    private fun saveData() {
+        lifecycleScope.launch {
+            val loginPref = requireActivity().getSharedPreferences("login_pref", Context.MODE_PRIVATE)
+            val name = binding.etName.text.toString().trim()
+
+            // Update name in shared preferences
+            loginPref.edit().putString("user_name", name).apply()
+
+            // Create updated portfolio using binding data
+            val updatedPortfolio = (currentPortfolio ?: Portfolio(email = binding.etEmail.text.toString().trim())).copy(
+                name = name,
+                phone = binding.etPhone.text.toString().trim(),
+                skills = binding.etSkills.text.toString().trim(),
+                experience = binding.etExperience.text.toString().trim(),
+                education = binding.etEducation.text.toString().trim(),
+                interests = binding.etInterests.text.toString().trim()
+            )
+
+            withContext(Dispatchers.IO) {
+                portfolioDao.upsert(updatedPortfolio)
+            }
+
+            currentPortfolio = updatedPortfolio
+            showToast("Portfolio updated successfully")
+        }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

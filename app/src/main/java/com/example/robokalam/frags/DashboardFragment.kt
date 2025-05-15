@@ -1,16 +1,24 @@
 package com.example.robokalam.frags
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import com.example.robokalam.databinding.FragmentDashboardBinding
 import androidx.viewpager2.widget.ViewPager2
 import com.example.robokalam.DashboardPagerAdapter
+import com.example.robokalam.LoginActivity
+import com.example.robokalam.data.AppDatabase
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 
 class DashboardFragment : Fragment() {
     private var _binding: FragmentDashboardBinding? = null
@@ -31,6 +39,7 @@ class DashboardFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupProfile()
         setupViewPager()
+        setupLogout()
     }
 
     private fun setupProfile() {
@@ -57,7 +66,40 @@ class DashboardFragment : Fragment() {
             }
         }.attach()
     }
+    private fun setupLogout() {
+        binding.btnLogout.setOnClickListener {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Logout")
+                .setMessage("Are you sure you want to logout?")
+                .setPositiveButton("Yes") { _, _ ->
+                    performLogout()
+                }
+                .setNegativeButton("No", null)
+                .show()
+        }
+    }
 
+    private fun performLogout() {
+        // Clear SharedPreferences
+        val sharedPreferences = requireContext().getSharedPreferences(
+            "login_pref", // Changed to match your existing preferences name
+            Context.MODE_PRIVATE
+        )
+        sharedPreferences.edit().clear().apply()
+
+        // Clear Room database using proper lifecycleScope
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val db = AppDatabase.getInstance(requireContext())
+            db.clearAllTables()
+
+            withContext(Dispatchers.Main) {
+                val intent = Intent(requireContext(), LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                requireActivity().finish()
+            }
+        }
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

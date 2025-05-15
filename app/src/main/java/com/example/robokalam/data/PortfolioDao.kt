@@ -9,9 +9,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PortfolioDao {
-    @Query("SELECT * FROM portfolio WHERE userId = :userId")
-    fun getPortfolio(userId: String): Flow<PortfolioEntity?>
+    @Query("SELECT * FROM portfolios WHERE email = :email")
+    suspend fun getPortfolioByEmail(email: String): Portfolio?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertPortfolio(portfolio: PortfolioEntity)
+    suspend fun upsert(portfolio: Portfolio)
 }

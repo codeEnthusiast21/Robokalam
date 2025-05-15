@@ -24,6 +24,9 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var courseAdapter: GenericAdapter
     private lateinit var classAdapter: GenericAdapter
+    private var cachedQuote: String? = null
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,17 +47,26 @@ class HomeFragment : Fragment() {
     private fun setupWelcomeMessage() {
         val sharedPref = requireActivity().getSharedPreferences("login_pref", Context.MODE_PRIVATE)
         val userName = sharedPref.getString("user_name", "User")
-        binding.tvWelcome.text = "Welcome, $userName"
+        binding.tvWelcome.text = "Welcome back, $userName"
     }
 
     private fun setupQuote() {
-        // Fetch quote from API
+
+        cachedQuote?.let {
+            binding.tvQuote.text = it
+            return
+        }
         lifecycleScope.launch {
             try {
                 val quote = fetchQuote()
-                binding.tvQuote.text = quote
+                cachedQuote = quote
+                if (isAdded) {
+                    binding.tvQuote.text = quote
+                }
             } catch (e: Exception) {
-                binding.tvQuote.text = "Loading quote..."
+                if (isAdded) {
+                    binding.tvQuote.text = "Failed to load quote"
+                }
             }
         }
     }
@@ -81,26 +93,32 @@ class HomeFragment : Fragment() {
         return listOf(
             ItemModel(
                 1,
-                "Python Programming",
-                "Learn Python from scratch",
+                "Full Stack Web Development",
+                "Master MERN Stack Development",
                 R.drawable.robokalam_logo
             ),
             ItemModel(
                 2,
-                "Web Development",
-                "Full Stack Development Course",
+                "Data Science & Analytics",
+                "Python, ML & Data Analysis",
                 R.drawable.robokalam_logo
             ),
             ItemModel(
                 3,
-                "Machine Learning",
-                "AI & ML Fundamentals",
+                "Digital Marketing",
+                "Complete Digital Marketing Course",
                 R.drawable.robokalam_logo
             ),
             ItemModel(
                 4,
-                "App Development",
-                "Android & iOS Development",
+                "Programming with Python",
+                "Python Programming Fundamentals",
+                R.drawable.robokalam_logo
+            ),
+            ItemModel(
+                5,
+                "UI/UX Design",
+                "Design Thinking & Tools",
                 R.drawable.robokalam_logo
             )
         )
@@ -110,26 +128,26 @@ class HomeFragment : Fragment() {
         return listOf(
             ItemModel(
                 1,
-                "Live Python Session",
-                "Today at 3:00 PM",
+                "Web Development Workshop",
+                "Build Real Projects with React",
                 R.drawable.robokalam_logo
             ),
             ItemModel(
                 2,
-                "Data Structures",
-                "Tomorrow at 4:00 PM",
+                "Python Programming Lab",
+                "Hands-on Coding Practice",
                 R.drawable.robokalam_logo
             ),
             ItemModel(
                 3,
-                "Interview Prep",
-                "Sunday at 2:00 PM",
+                "Machine Learning Basics",
+                "Introduction to ML Algorithms",
                 R.drawable.robokalam_logo
             ),
             ItemModel(
                 4,
-                "Coding Practice",
-                "Monday at 5:00 PM",
+                "Digital Marketing Strategy",
+                "SEO & Social Media Marketing",
                 R.drawable.robokalam_logo
             )
         )
@@ -139,7 +157,6 @@ class HomeFragment : Fragment() {
     private suspend fun fetchQuote(): String {
         return withContext(Dispatchers.IO) {
             val response = URL("https://zenquotes.io/api/random").readText()
-            // Parse JSON response and return quote
             JSONArray(response).getJSONObject(0).getString("q")
         }
     }

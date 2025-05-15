@@ -32,6 +32,7 @@
     <color name="background">#FAFAFA</color>
     <color name="surface">#FFFFFF</color>
     <color name="card_background">#FFFFFF</color>
+    <color name="red_700">#D32F2F</color>
 
     <!-- Legacy Support -->
     <color name="purple_200">#BB86FC</color>

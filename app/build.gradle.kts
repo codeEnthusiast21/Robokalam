@@ -49,7 +49,12 @@ dependencies {
 
     implementation("androidx.viewpager2:viewpager2:1.0.0")
     implementation("com.google.android.material:material:1.11.0")
-    
+
+    implementation ("com.github.bumptech.glide:glide:4.15.1")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
+
+    implementation ("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0")
+
 
 
 

@@ -1,4 +1,3 @@
-// PurchasedCoursesFragment.kt
 package com.example.robokalam.frags
 
 import android.os.Bundle
