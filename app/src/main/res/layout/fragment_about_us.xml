@@ -58,13 +58,14 @@
             android:textStyle="bold" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvCourses"
+            android:id="@+id/rvPrograms"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:clipToPadding="false" />
+            android:clipToPadding="false"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"/>
 
-        <!-- Follow Us section with proper spacing -->
+        <!-- Follow Us section -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -89,7 +90,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="24dp"
-                android:background="@drawable/gradient_background">
+                android:background="@color/black">
 
                 <GridLayout
                     android:layout_width="match_parent"
@@ -205,7 +206,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="Contact Us"
-            android:textColor="@color/black"
+            android:textColor="#121111"
             android:textSize="24sp"
             android:textStyle="bold"
             android:gravity="center" />
@@ -225,7 +226,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="24dp"
-                android:background="@drawable/gradient_background">
+                android:background="#121111">
 
                 <LinearLayout
                     android:layout_width="match_parent"

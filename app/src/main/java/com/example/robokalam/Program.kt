@@ -1,10 +1,9 @@
 package com.example.robokalam
 
-data class Course(
+data class Program(
     val id: String,
+    val imageResId: Int,
     val title: String,
     val description: String,
-    val imageUrl: String,
-    val price: Double,
-    val isLive: Boolean = false
+    val learnMoreUrl: String
 )

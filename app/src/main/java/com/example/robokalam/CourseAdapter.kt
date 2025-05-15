@@ -4,17 +4,40 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.robokalam.databinding.ItemCardBinding
 import com.example.robokalam.databinding.ItemCourseBinding
 
 class CourseAdapter(
     private val courses: List<Course>,
-    private val onLearnMoreClick: (String) -> Unit
+    private val onLearnMoreClick: (Course) -> Unit
 ) : RecyclerView.Adapter<CourseAdapter.CourseViewHolder>() {
 
-    class CourseViewHolder(val binding: ItemCourseBinding) : RecyclerView.ViewHolder(binding.root)
+    inner class CourseViewHolder(private val binding: ItemCardBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(course: Course) {
+            binding.apply {
+                tvTitle.text = course.title
+                tvDescription.text = course.description
+                tvPrice.text = "₹%.2f".format(course.price)
+
+                // Load image using Glide
+                Glide.with(ivCourse)
+                    .load(course.imageUrl)
+                    .placeholder(R.drawable.course_placeholder)
+                    .error(R.drawable.course_error)
+                    .centerCrop()
+                    .into(ivCourse)
+
+                btnLearnMore.setOnClickListener {
+                    onLearnMoreClick(course)
+                }
+            }
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CourseViewHolder {
-        val binding = ItemCourseBinding.inflate(
+        val binding = ItemCardBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
@@ -23,20 +46,7 @@ class CourseAdapter(
     }
 
     override fun onBindViewHolder(holder: CourseViewHolder, position: Int) {
-        val course = courses[position]
-        holder.binding.apply {
-            // Use Glide or similar library to load image
-            Glide.with(ivCourse)
-                .load(course.imageUrl)
-                .centerCrop()
-                .into(ivCourse)
-
-            tvTitle.text = course.title
-            tvDescription.text = course.description
-            btnLearnMore.setOnClickListener {
-                onLearnMoreClick(course.learnMoreUrl)
-            }
-        }
+        holder.bind(courses[position])
     }
 
     override fun getItemCount() = courses.size

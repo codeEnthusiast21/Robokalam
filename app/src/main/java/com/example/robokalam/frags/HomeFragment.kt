@@ -6,8 +6,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.robokalam.Course
+import com.example.robokalam.CourseAdapter
 import com.example.robokalam.GenericAdapter
 import com.example.robokalam.ItemModel
 import com.example.robokalam.R
@@ -22,11 +25,9 @@ import java.net.URL
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private lateinit var courseAdapter: GenericAdapter
-    private lateinit var classAdapter: GenericAdapter
-    private var cachedQuote: String? = null
 
-
+    private lateinit var featuredCoursesAdapter: CourseAdapter
+    private lateinit var liveClassesAdapter: CourseAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,126 +40,116 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupWelcomeMessage()
-        setupQuote()
         setupRecyclerViews()
+        setWelcomeMessage()
+        loadCourses()
+        fetchQuote()
     }
 
-    private fun setupWelcomeMessage() {
-        val sharedPref = requireActivity().getSharedPreferences("login_pref", Context.MODE_PRIVATE)
-        val userName = sharedPref.getString("user_name", "User")
-        binding.tvWelcome.text = "Welcome back, $userName"
-    }
+    private fun fetchQuote() {
+        binding.tvQuote.text = "Loading quote..."
 
-    private fun setupQuote() {
-
-        cachedQuote?.let {
-            binding.tvQuote.text = it
-            return
-        }
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val quote = fetchQuote()
-                cachedQuote = quote
-                if (isAdded) {
-                    binding.tvQuote.text = quote
+                val response = URL("https://api.quotable.io/random?maxLength=100").readText()
+                val jsonObject = org.json.JSONObject(response)
+                val quote = jsonObject.getString("content")
+                val author = jsonObject.getString("author")
+
+                withContext(Dispatchers.Main) {
+                    binding.tvQuote.text = "\"$quote\"\n- $author"
                 }
             } catch (e: Exception) {
-                if (isAdded) {
-                    binding.tvQuote.text = "Failed to load quote"
+                withContext(Dispatchers.Main) {
+                    binding.tvQuote.text = "\"Education is not preparation for life; education is life itself.\"\n- John Dewey"
                 }
             }
         }
     }
 
     private fun setupRecyclerViews() {
-        courseAdapter = GenericAdapter()
-        classAdapter = GenericAdapter()
-
-        binding.rvCourses.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            adapter = courseAdapter
+        // Featured Courses
+        featuredCoursesAdapter = CourseAdapter(emptyList()) { course ->
+            // Handle learn more click for featured courses
+            openCourseDetails(course)
         }
 
-        binding.rvClasses.apply {
+        binding.rvFeaturedCourses.apply {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            adapter = classAdapter
+            adapter = featuredCoursesAdapter
         }
 
-        // Sample data
-        courseAdapter.submitList(getSampleCourses())
-        classAdapter.submitList(getSampleClasses())
+        // Live Classes
+        liveClassesAdapter = CourseAdapter(emptyList()) { course ->
+            // Handle learn more click for live classes
+            openCourseDetails(course)
+        }
+
+        binding.rvLiveClasses.apply {
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            adapter = liveClassesAdapter
+        }
     }
-    private fun getSampleCourses(): List<ItemModel> {
-        return listOf(
-            ItemModel(
-                1,
-                "Full Stack Web Development",
-                "Master MERN Stack Development",
-                R.drawable.robokalam_logo
+
+    private fun loadCourses() {
+        // Featured Courses data
+        val featuredCourses = listOf(
+            Course(
+                id = "1",
+                title = "Basic Electronics",
+                description = "Learn basic electronics from scratch",
+                imageUrl = "https://shop.robokalam.com/wp-content/uploads/2021/11/basic-electronics-416x416.png",
+                price = 6000.00
             ),
-            ItemModel(
-                2,
-                "Data Science & Analytics",
-                "Python, ML & Data Analysis",
-                R.drawable.robokalam_logo
-            ),
-            ItemModel(
-                3,
-                "Digital Marketing",
-                "Complete Digital Marketing Course",
-                R.drawable.robokalam_logo
-            ),
-            ItemModel(
-                4,
-                "Programming with Python",
-                "Python Programming Fundamentals",
-                R.drawable.robokalam_logo
-            ),
-            ItemModel(
-                5,
-                "UI/UX Design",
-                "Design Thinking & Tools",
-                R.drawable.robokalam_logo
+            Course(
+                id = "2",
+                title = "Python Development",
+                description = "Master Python development",
+                imageUrl = "https://shop.robokalam.com/wp-content/uploads/2021/11/ML-with-python-1-416x416.png",
+                price = 12500.00
             )
         )
-    }
 
-    private fun getSampleClasses(): List<ItemModel> {
-        return listOf(
-            ItemModel(
-                1,
-                "Web Development Workshop",
-                "Build Real Projects with React",
-                R.drawable.robokalam_logo
+        // Live Classes data
+        val liveClasses = listOf(
+            Course(
+                id = "3",
+                title = "Live ML Workshop",
+                description = "Interactive ML development session",
+                imageUrl = "https://shop.robokalam.com/wp-content/uploads/2021/11/ML-with-python-1-416x416.png",
+                price = 18000.00,
+                isLive = true
             ),
-            ItemModel(
-                2,
-                "Python Programming Lab",
-                "Hands-on Coding Practice",
-                R.drawable.robokalam_logo
-            ),
-            ItemModel(
-                3,
-                "Machine Learning Basics",
-                "Introduction to ML Algorithms",
-                R.drawable.robokalam_logo
-            ),
-            ItemModel(
-                4,
-                "Digital Marketing Strategy",
-                "SEO & Social Media Marketing",
-                R.drawable.robokalam_logo
+            Course(
+                id = "4",
+                title = "Live Game Workshop",
+                description = "Interactive Game development session",
+                imageUrl = "https://shop.robokalam.com/wp-content/uploads/2021/11/App-building-416x416.png",
+                price = 4999.00,
+                isLive = true
             )
         )
+
+        // Update adapters
+        featuredCoursesAdapter = CourseAdapter(featuredCourses) { course ->
+            openCourseDetails(course)
+        }
+        binding.rvFeaturedCourses.adapter = featuredCoursesAdapter
+
+        liveClassesAdapter = CourseAdapter(liveClasses) { course ->
+            openCourseDetails(course)
+        }
+        binding.rvLiveClasses.adapter = liveClassesAdapter
     }
 
-
-    private suspend fun fetchQuote(): String {
-        return withContext(Dispatchers.IO) {
-            val response = URL("https://zenquotes.io/api/random").readText()
-            JSONArray(response).getJSONObject(0).getString("q")
-        }
+    private fun openCourseDetails(course: Course) {
+        // TODO: Implement navigation to course details
+        Toast.makeText(context, "Opening ${course.title}", Toast.LENGTH_SHORT).show()
+    }
+    private fun setWelcomeMessage() {
+        val sharedPreferences = requireActivity().getSharedPreferences("login_pref", Context.MODE_PRIVATE)
+        val userName = sharedPreferences.getString("user_name", "User") ?: "User"
+        binding.tvWelcome.text = "Welcome back, $userName!"
     }
 
     override fun onDestroyView() {
