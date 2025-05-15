@@ -34,6 +34,8 @@
     <color name="card_background">#FFFFFF</color>
     <color name="red_700">#D32F2F</color>
 
+    <color name="stroke_color">#E0E0E0</color>
+
     <!-- Legacy Support -->
     <color name="purple_200">#BB86FC</color>
     <color name="purple_500">#6200EE</color>
