@@ -1,8 +1,9 @@
-package com.example.robokalam
+package com.example.robokalam.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.robokalam.data.model.Program
 import com.example.robokalam.databinding.ItemProgramBinding
 
 class ProgramAdapter(

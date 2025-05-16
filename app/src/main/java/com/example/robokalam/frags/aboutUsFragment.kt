@@ -10,8 +10,8 @@ import android.widget.Toast
 import androidx.core.view.ViewCompat.isNestedScrollingEnabled
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.robokalam.Program
-import com.example.robokalam.ProgramAdapter
+import com.example.robokalam.data.model.Program
+import com.example.robokalam.adapter.ProgramAdapter
 import com.example.robokalam.R
 import com.example.robokalam.databinding.FragmentAboutUsBinding
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer

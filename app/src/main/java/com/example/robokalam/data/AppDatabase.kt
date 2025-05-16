@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Portfolio::class], version = 2) // Increment version number
+@Database(entities = [Portfolio::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun portfolioDao(): PortfolioDao
 
@@ -20,7 +20,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "app_database"
                 )
-                    .fallbackToDestructiveMigration() // This will delete old database and create new one
+
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

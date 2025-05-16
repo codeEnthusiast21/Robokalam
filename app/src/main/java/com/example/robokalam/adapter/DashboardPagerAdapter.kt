@@ -1,4 +1,4 @@
-package com.example.robokalam
+package com.example.robokalam.adapter
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter

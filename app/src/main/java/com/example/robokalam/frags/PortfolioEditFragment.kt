@@ -41,23 +41,22 @@ class PortfolioEditFragment : Fragment() {
     }
 
     private fun loadSavedData() {
-        // Get name and email from login preferences
+
         val loginPref = requireActivity().getSharedPreferences("login_pref", Context.MODE_PRIVATE)
         val userEmail = loginPref.getString("user_email", "") ?: ""
 
-        // Launch coroutine to fetch portfolio data
+
         lifecycleScope.launch {
-            // Get portfolio from Room DB
+
             currentPortfolio = withContext(Dispatchers.IO) {
                 portfolioDao.getPortfolioByEmail(userEmail)
             } ?: Portfolio(email = userEmail)
 
             binding.apply {
-                // Set data from login preferences
+
                 etName.setText(loginPref.getString("user_name", ""))
                 etEmail.setText(userEmail)
 
-                // Set data from Room database
                 currentPortfolio?.let { portfolio ->
                     etPhone.setText(portfolio.phone)
                     etSkills.setText(portfolio.skills)
@@ -125,10 +124,9 @@ class PortfolioEditFragment : Fragment() {
 
     private fun toggleEditMode(editing: Boolean) {
         binding.apply {
-            // Map of views to their edit state
             val editableViews = mapOf(
                 etName to editing,
-                etEmail to false, // Always disabled
+                etEmail to false,
                 etPhone to editing,
                 etSkills to editing,
                 etExperience to editing,

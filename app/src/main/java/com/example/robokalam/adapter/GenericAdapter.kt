@@ -1,14 +1,13 @@
-package com.example.robokalam
+package com.example.robokalam.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.robokalam.databinding.ItemCardBinding
+import com.example.robokalam.data.model.ItemModel
 import com.example.robokalam.databinding.ItemPurchasedCourseBinding
 
-// GenericAdapter.kt
 class GenericAdapter : ListAdapter<ItemModel, GenericAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     class ViewHolder(private val binding: ItemPurchasedCourseBinding) :

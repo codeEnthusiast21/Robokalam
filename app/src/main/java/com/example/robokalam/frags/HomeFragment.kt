@@ -9,10 +9,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.robokalam.Course
-import com.example.robokalam.CourseAdapter
-import com.example.robokalam.GenericAdapter
-import com.example.robokalam.ItemModel
+import com.example.robokalam.data.model.Course
+import com.example.robokalam.adapter.CourseAdapter
+import com.example.robokalam.adapter.GenericAdapter
+import com.example.robokalam.data.model.ItemModel
 import com.example.robokalam.R
 import com.example.robokalam.databinding.FragmentHomeBinding
 import kotlinx.coroutines.Dispatchers
@@ -68,9 +68,8 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupRecyclerViews() {
-        // Featured Courses
         featuredCoursesAdapter = CourseAdapter(emptyList()) { course ->
-            // Handle learn more click for featured courses
+
             openCourseDetails(course)
         }
 
@@ -79,9 +78,8 @@ class HomeFragment : Fragment() {
             adapter = featuredCoursesAdapter
         }
 
-        // Live Classes
+
         liveClassesAdapter = CourseAdapter(emptyList()) { course ->
-            // Handle learn more click for live classes
             openCourseDetails(course)
         }
 
@@ -92,7 +90,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadCourses() {
-        // Featured Courses data
+
         val featuredCourses = listOf(
             Course(
                 id = "1",
@@ -110,7 +108,7 @@ class HomeFragment : Fragment() {
             )
         )
 
-        // Live Classes data
+
         val liveClasses = listOf(
             Course(
                 id = "3",
@@ -130,7 +128,7 @@ class HomeFragment : Fragment() {
             )
         )
 
-        // Update adapters
+
         featuredCoursesAdapter = CourseAdapter(featuredCourses) { course ->
             openCourseDetails(course)
         }
@@ -143,7 +141,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun openCourseDetails(course: Course) {
-        // TODO: Implement navigation to course details
+
         Toast.makeText(context, "Opening ${course.title}", Toast.LENGTH_SHORT).show()
     }
     private fun setWelcomeMessage() {

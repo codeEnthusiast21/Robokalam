@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.example.robokalam.databinding.FragmentDashboardBinding
 import androidx.viewpager2.widget.ViewPager2
-import com.example.robokalam.DashboardPagerAdapter
+import com.example.robokalam.adapter.DashboardPagerAdapter
 import com.example.robokalam.LoginActivity
 import com.example.robokalam.data.AppDatabase
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -82,12 +82,11 @@ class DashboardFragment : Fragment() {
     private fun performLogout() {
         // Clear SharedPreferences
         val sharedPreferences = requireContext().getSharedPreferences(
-            "login_pref", // Changed to match your existing preferences name
+            "login_pref",
             Context.MODE_PRIVATE
         )
         sharedPreferences.edit().clear().apply()
 
-        // Clear Room database using proper lifecycleScope
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             val db = AppDatabase.getInstance(requireContext())
             db.clearAllTables()

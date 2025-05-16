@@ -1,11 +1,12 @@
-package com.example.robokalam
+package com.example.robokalam.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.robokalam.R
+import com.example.robokalam.data.model.Course
 import com.example.robokalam.databinding.ItemCardBinding
-import com.example.robokalam.databinding.ItemCourseBinding
 
 class CourseAdapter(
     private val courses: List<Course>,

@@ -5,9 +5,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.LinearLayoutManager  // Add this import
-import com.example.robokalam.GenericAdapter
-import com.example.robokalam.ItemModel
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.robokalam.adapter.GenericAdapter
+import com.example.robokalam.data.model.ItemModel
 import com.example.robokalam.R
 import com.example.robokalam.databinding.FragmentPurchasedCoursesBinding
 
